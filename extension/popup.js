@@ -50,9 +50,17 @@ async function autoScan(tabId, url, force = false) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url, fetch_html: true })
     });
-    if (!res.ok) throw new Error(`Server error ${res.status}`);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+
+    let data;
+    try {
+      data = await res.json();
+    } catch (_) {
+      data = {};
+    }
+
+    if (!res.ok) {
+      throw new Error(data.error || `Server error ${res.status}`);
+    }
 
     chrome.storage.session.set({ [key]: data });
     renderResult(data);
@@ -68,7 +76,11 @@ async function autoScan(tabId, url, force = false) {
     saveToLocalHistory(data);
     loadHistory();
   } catch (err) {
-    showError(`Scan failed: ${err.message}. Is the PhishGuard server running?`);
+    if (err.message.includes("Failed to fetch") || err.message.includes("NetworkError")) {
+      showError("Scan failed: Cannot connect to backend. Is the PhishGuard server running?");
+    } else {
+      showError(`Scan failed: ${err.message}`);
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = "🔄 Re-Scan";

@@ -27,9 +27,6 @@ async function scanTab(tabId, url) {
   chrome.action.setBadgeText({ tabId, text: "…" });
   chrome.action.setBadgeBackgroundColor({ tabId, color: "#6b7a99" });
 
-  const scanningUrl = `${SCANNING_PAGE}?url=${encodeURIComponent(url)}`;
-  chrome.tabs.update(tabId, { url: scanningUrl });
-
   try {
     const res = await fetch(`${API_BASE}/api/scan`, {
       method: "POST",
@@ -37,9 +34,9 @@ async function scanTab(tabId, url) {
       body: JSON.stringify({ url, fetch_html: true })
     });
 
-    if (!res.ok) { chrome.tabs.update(tabId, { url }); delete scannedTabs[scanKey]; return; }
+    if (!res.ok) { delete scannedTabs[scanKey]; return; }
     const data = await res.json();
-    if (data.error) { chrome.tabs.update(tabId, { url }); delete scannedTabs[scanKey]; return; }
+    if (data.error) { delete scannedTabs[scanKey]; return; }
 
     const popupKey = `popup_scan_${tabId}_${encodeURIComponent(host)}`;
     chrome.storage.session.set({ [popupKey]: data });
@@ -54,14 +51,11 @@ async function scanTab(tabId, url) {
     } else if (data.is_phishing) {
       chrome.action.setBadgeText({ tabId, text: "⚠" });
       chrome.action.setBadgeBackgroundColor({ tabId, color: "#f59e0b" });
-      chrome.tabs.update(tabId, { url });
     } else {
       chrome.action.setBadgeText({ tabId, text: "✓" });
       chrome.action.setBadgeBackgroundColor({ tabId, color: "#22c55e" });
-      chrome.tabs.update(tabId, { url });
     }
   } catch (_) {
-    chrome.tabs.update(tabId, { url });
     delete scannedTabs[scanKey];
     chrome.action.setBadgeText({ tabId, text: "?" });
     chrome.action.setBadgeBackgroundColor({ tabId, color: "#6b7a99" });

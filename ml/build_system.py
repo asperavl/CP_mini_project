@@ -15,7 +15,7 @@ def initialize_system(tune_hyperparams=False):
     print("=" * 55)
     if not os.path.exists(DATA_FILE):
         print(f"[!] Error: {DATA_FILE} not found.")
-        print("    Download from: https://www.kaggle.com/datasets/eswarchandt/phishingg")
+        print("    Download from: https://www.kaggle.com/datasets/eswarchandt/phishing-website-detector")
         sys.exit(1)
     print(f"\n[1] Loading {DATA_FILE}...")
     data = pd.read_csv(DATA_FILE)
