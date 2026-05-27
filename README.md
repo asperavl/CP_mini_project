@@ -1,14 +1,14 @@
-Here is a complete `README.md` file tailored to your project structure, along with step-by-step instructions on how to set up and operate the entire PhishGuard system.
-
-***
-
-# PhishGuard 🛡️
+# PhishGuard 🛡️ (Forked Upgrades)
 **ML-Powered Real-Time Phishing Detection System**
 
-PhishGuard is a comprehensive cybersecurity solution that detects and blocks phishing websites in real time. It utilizes a hybrid Machine Learning model (Random Forest + XGBoost) analyzing 30 distinct URL and HTML features to calculate risk scores. The system includes a Flask backend API, a web dashboard, and a proactive Chrome Extension that intercepts malicious navigation.
+This is an upgraded fork of PhishGuard with the following improvements:
 
-**Developed by Group A7:** Sriram, Krishnaprasad, Shaun, Thomas 
-**Guide:** Divya Prakash
+### 🌟 Key Changes in this Fork
+* **Scan Cache**: Added a thread-safe, 10-minute memory cache in `app.py` to prevent redundant network requests and WHOIS queries (resolves duplicate scans in <5ms).
+* **Domain Whitelist**: Added a static whitelist for secure sites and payment processors (Stripe, PayPal, Google, etc.) to skip ML processing instantly (<1ms).
+* **Non-Intrusive Extension**: Modified `background.js` to scan pages silently without interrupting navigations or breaking logins and e-commerce checkouts.
+* **SSRF Protection**: Added strict IP/DNS checks to block scanning of local and private network addresses (loopback, subnets).
+* **Strict CORS**: Hardened Flask CORS policies to accept requests only from localhost and the browser extension.
 
 ---
 
@@ -17,23 +17,6 @@ PhishGuard is a comprehensive cybersecurity solution that detects and blocks phi
 * **Backend API (`app.py`):** Flask-based REST API that bridges the ML model with the client interfaces and logs scan history using SQLite.
 * **Web Dashboard (`/frontend`):** A sleek vanilla HTML/CSS/JS interface served by Flask to manually scan URLs and view aggregate statistics.
 * **Browser Extension (`/extension`):** A Manifest V3 Chrome extension that automatically scans web traffic and blocks access to high-risk pages.
-
----
-
-## 🌟 Key Upgrades & Production Hardening
-
-We have significantly upgraded PhishGuard to meet high industry security and performance standards:
-
-1. **⚡ Thread-Safe Memory Cache (`ScanCache`)**: 
-   Introduces an in-memory, thread-safe sliding cache with a **10-minute sliding TTL** and a size limit safety (1,000 max entries, FIFO eviction). This speeds up subsequent scans for identical URLs to **under 5ms**, while eliminating redundant CPU network overhead.
-2. **💳 Financial & Payment Provider Whitelist**:
-   Major high-traffic systems, payment gateways, and banking security assets (like `stripe.com`, `paypal.com`, `razorpay.com`, `visa.com`, `mastercard.com`, Google, YouTube, and major banks) are whitelisted to bypass all ML scraping and resolve **instantly (<1ms)**, ensuring frictionless payment checkout operations.
-3. **🚀 Transparent Background Interceptor**:
-   Refactored the Chrome extension's interception pipeline. The extension now processes evaluations **silently in the background** rather than aggressively hijacking tabs to `scanning.html` on every page load. This keeps banking sessions, login page payloads, and multi-step checkouts **100% stable and error-free**.
-4. **🔒 Secure SSRF Network Shield**:
-   Integrates a robust DNS-resolved hostname verification framework inside `app.py`. When a domain is requested for scanning, the server resolves it to its physical IP address and blocks it if it belongs to private, loopback, or link-local subnets (`127.0.0.0/8`, `192.168.0.0/16`, `172.16.0.0/12`, etc.), preventing Server-Side Request Forgery exploits.
-5. **🛡️ Restrictive CORS Origin Policy**:
-   Hardens Flask endpoints by enforcing regular-expression CORS rules. The API now exclusively permits connections coming from Chrome Extensions (`chrome-extension://*`) or local host loops, blocking malicious public websites from probing your local ports.
 
 ---
 
@@ -50,7 +33,7 @@ Before running PhishGuard, ensure you have the following installed on your syste
 Follow these steps in order to get the entire system up and running.
 
 ### Step 1: Install Dependencies
-Open your terminal (or WSL) in the root directory of the project (`sriram-c-p-mini_project/`) and install the required Python packages:
+Open your terminal (or WSL) in the root directory of the project (`CP_mini_project/`) and install the required Python packages:
 ```bash
 pip install -r requirements.txt
 ```
